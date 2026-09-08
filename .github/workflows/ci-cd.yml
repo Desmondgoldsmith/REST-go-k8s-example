@@ -1,15 +1,17 @@
+name: Go CI/CD
+
 on:
-   pull_request:
+  pull_request:
 
 permissions:
-   id-token: write
-   contents: read
+  id-token: write
+  contents: read
 
 jobs:
-   build:
-     runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-     steps:
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -25,6 +27,9 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Log in to Azure Container Registry
+        run: az acr login --name dessydevopsacr
+
       - name: Download dependencies
         run: go mod download
 
@@ -35,6 +40,9 @@ jobs:
         run: go test ./...
 
       - name: Build Docker image
-        run: docker build -t go-rest-api:1.0 .
+        run: docker build -t dessydevopsacr.azurecr.io/go-rest-api:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: docker push dessydevopsacr.azurecr.io/go-rest-api:${{ github.sha }}
 
 
