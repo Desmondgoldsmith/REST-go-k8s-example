@@ -58,4 +58,9 @@ jobs:
       - name: Push Docker image
         run: docker push dessydevopsacr.azurecr.io/go-rest-api:${{ github.sha }}
 
-
+      - name: Deploy to AKS with Helm
+        run: |
+          helm upgrade --install go-rest-api ./helm \
+            --namespace go-rest-api \
+            --create-namespace \
+            --set image.tag=${{ github.sha }}
