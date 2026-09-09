@@ -53,14 +53,15 @@ jobs:
         run: go test ./...
 
       - name: Build Docker image
-        run: docker build -t dessydevopsacr.azurecr.io/go-rest-api:${{ github.run_number }} .
+        run: docker build -t dessydevopsacr.azurecr.io/${{github.event.repository.name}}:${{ github.run_number }} .
 
       - name: Push Docker image
-        run: docker push dessydevopsacr.azurecr.io/go-rest-api:${{ github.run_number }}
+        run: docker push dessydevopsacr.azurecr.io/${{github.event.repository.name}}:${{ github.run_number }}
 
     
       - name: Deploy to AKS with Helm
         run: |
           helm upgrade --install go-rest-api ./helm \
             --namespace go-rest-api \
+            --set image.repository=dessydevopsacr.azurecr.io/${{ github.event.repository.name }} \
             --set image.tag=${{ github.run_number }}
