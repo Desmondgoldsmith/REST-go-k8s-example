@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: dessydevopsacr.azurecr.io/go-rest-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+  port: 10000
+  targetPort: 10000
