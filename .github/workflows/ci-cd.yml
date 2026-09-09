@@ -52,16 +52,18 @@ jobs:
       - name: Run Go tests
         run: go test ./...
 
+      - name: Set image name
+        run: echo "IMAGE_NAME=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+
       - name: Build Docker image
-        run: docker build -t dessydevopsacr.azurecr.io/${{github.event.repository.name}}:${{ github.run_number }} .
+        run: docker build -t dessydevopsacr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} .
 
       - name: Push Docker image
-        run: docker push dessydevopsacr.azurecr.io/${{github.event.repository.name}}:${{ github.run_number }}
+        run: docker push dessydevopsacr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
-    
       - name: Deploy to AKS with Helm
         run: |
           helm upgrade --install go-rest-api ./helm \
             --namespace go-rest-api \
-            --set image.repository=dessydevopsacr.azurecr.io/${{ github.event.repository.name }} \
+            --set image.repository=dessydevopsacr.azurecr.io/${{ env.IMAGE_NAME }} \
             --set image.tag=${{ github.run_number }}
